@@ -44,13 +44,32 @@ Ver [docs/quality_report.md](docs/quality_report.md) para métricas antes/despu�
 ```
 
 ## Cómo reproducir
+
+### Opción rápida (recomendada)
+```bash
+# Mac/Linux
+bash setup.sh
+
+# Windows
+setup.bat
+```
+Esto crea el entorno virtual, instala dependencias y registra el kernel de Jupyter.
+
+### Opción manual
 ```bash
 python -m venv venv
 source venv/bin/activate  # Windows: venv\Scripts\activate
 pip install -r requirements.txt
-jupyter notebook
+python -m ipykernel install --user --name=mexico-suicide-data-curation --display-name "Python (mexico-suicide-data-curation)"
 ```
-Ejecutar en orden: `01_profiling.ipynb` → `02_cleaning.ipynb` → `03_validation.ipynb`.
+
+### En VS Code
+1. Abre la carpeta del proyecto: `code .`
+2. Acepta instalar las extensiones recomendadas cuando aparezca el aviso (o `Ctrl+Shift+P` → "Extensions: Show Recommended Extensions")
+3. `Ctrl+Shift+P` → "Python: Select Interpreter" → elige `./venv`
+4. Abre cualquier notebook en `notebooks/`, selecciona el kernel del proyecto, y corre celdas con `Shift+Enter`
+
+Ejecutar los notebooks en orden: `01_profiling.ipynb` → `02_cleaning.ipynb` → `03_validation.ipynb`.
 
 ## Nota sobre el tema
 Este proyecto usa datos públicos y agregados con fines metodológicos de curaduría
