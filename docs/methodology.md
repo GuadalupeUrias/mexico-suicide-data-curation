@@ -11,7 +11,9 @@
 ## 2. Reglas de filtrado
 | Regla | Justificación |
 |---|---|
-| _pendiente_ | _pendiente_ |
+| `Tipo_defun == 3` | INEGI codifica la presunción de tipo de defunción en esta variable; `3` = "Suicidio (Lesión autoinfligida)". Es el filtro central del universo de estudio. |
+| Verificación cruzada con `Causa_def` (CIE-10 X60-X84) | Validación secundaria: las causas CIE-10 de lesión autoinfligida deben ser consistentes con `Tipo_defun == 3`. Discrepancias se documentan como hallazgo de calidad. |
+| Verificación de magnitud contra cifra publicada | INEGI reportó ~9,085 casos de suicidio en 2023 (10.8% de 84,118 defunciones por causas externas, Nota Técnica EDR 2023). El conteo del filtro propio debe aproximarse a esta cifra; diferencias se explican y documentan. |
 
 ## 3. Reglas de limpieza
 | Campo | Problema detectado | Regla aplicada | Justificación |

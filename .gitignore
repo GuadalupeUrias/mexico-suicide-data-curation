@@ -7,8 +7,8 @@ __pycache__/
 venv/
 
 # Datos crudos pesados (opcional: si INEGI pesa mucho, no subir a git)
-# data/raw/*
-# !data/raw/.gitkeep
+data/raw/*
+!data/raw/.gitkeep
 
 # OS / editor
 .DS_Store

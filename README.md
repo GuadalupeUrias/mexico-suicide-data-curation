@@ -17,6 +17,9 @@ metodológica.
 Ver [docs/methodology.md](docs/methodology.md) para el detalle completo de reglas
 de filtrado, limpieza y normalización de catálogos.
 
+El perfilado se realiza con pandas puro (sin `ydata-profiling`, no compatible aún
+con Python 3.13+/3.14) mediante funciones propias en `src/cleaning_utils.py`.
+
 ## Diccionario de datos
 Ver [docs/data_dictionary.md](docs/data_dictionary.md).
 
@@ -54,6 +57,10 @@ bash setup.sh
 setup.bat
 ```
 Esto crea el entorno virtual, instala dependencias y registra el kernel de Jupyter.
+En Windows, si no tienes Python instalado, el script lo instala automáticamente
+con `winget` (viene incluido en Windows 10/11 actualizado). Si eso ocurre, cierra
+y reabre la terminal una vez (limitación de Windows, no del script) y vuelve a
+correr `setup.bat`.
 
 ### Opción manual
 ```bash
