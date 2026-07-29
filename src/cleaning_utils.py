@@ -276,3 +276,64 @@ def translate_catalog(
     ))
     df[new_col_name] = df[df_col].astype(str).str.strip().map(lookup)
     return df
+
+
+# ============================================================
+# FASE 3: VALIDACION
+# Controles de calidad sobre el dataset ya limpio (data/processed/)
+# ============================================================
+
+def validate_dates(df: pd.DataFrame, year_col: str, month_col: str, day_col: str) -> dict:
+    """Reconstruye fechas a partir de columnas separadas de anio/mes/dia y
+    reporta cuantas son invalidas (no forman una fecha real de calendario).
+    """
+    fechas = pd.to_datetime({
+        "year": pd.to_numeric(df[year_col], errors="coerce"),
+        "month": pd.to_numeric(df[month_col], errors="coerce"),
+        "day": pd.to_numeric(df[day_col], errors="coerce"),
+    }, errors="coerce")
+    total = len(df)
+    invalidas = int(fechas.isna().sum())
+    return {
+        "total_registros": total,
+        "fechas_invalidas": invalidas,
+        "pct_invalidas": round(invalidas / total * 100, 2) if total else 0,
+    }
+
+
+def validate_codes_against_catalog(
+    df: pd.DataFrame, df_col: str, catalog_df: pd.DataFrame, catalog_code_col: str
+) -> dict:
+    """Verifica que todos los codigos usados en df_col existan en el catalogo
+    de referencia. Retorna los codigos 'huerfanos' (sin match) y su conteo.
+    """
+    codigos_dataset = set(df[df_col].dropna().astype(str).str.strip())
+    codigos_catalogo = set(catalog_df[catalog_code_col].astype(str).str.strip())
+    huerfanos = codigos_dataset - codigos_catalogo
+    n_registros_huerfanos = int(df[df_col].astype(str).str.strip().isin(huerfanos).sum())
+    return {
+        "codigos_huerfanos": sorted(huerfanos),
+        "n_codigos_huerfanos": len(huerfanos),
+        "n_registros_afectados": n_registros_huerfanos,
+    }
+
+
+def validate_cross_consistency(df: pd.DataFrame, col_a: str, valor_a, col_b: str, valores_b_validos: list) -> dict:
+    """Verifica consistencia entre dos variables relacionadas. Ejemplo de uso:
+    si Tipo_defun == 3 (suicidio), Causa_def deberia caer en el rango CIE-10
+    de lesiones autoinfligidas (X60-X84).
+
+    valores_b_validos puede ser una lista de valores exactos, o se puede pasar
+    una funcion lambda como filtro personalizado via 'valores_b_validos'.
+    """
+    subset = df[df[col_a] == valor_a]
+    if callable(valores_b_validos):
+        es_valido = subset[col_b].apply(valores_b_validos)
+    else:
+        es_valido = subset[col_b].isin(valores_b_validos)
+    n_inconsistentes = int((~es_valido).sum())
+    return {
+        "total_subset": len(subset),
+        "n_inconsistentes": n_inconsistentes,
+        "pct_inconsistentes": round(n_inconsistentes / len(subset) * 100, 2) if len(subset) else 0,
+    }
