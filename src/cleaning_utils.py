@@ -337,3 +337,82 @@ def validate_cross_consistency(df: pd.DataFrame, col_a: str, valor_a, col_b: str
         "n_inconsistentes": n_inconsistentes,
         "pct_inconsistentes": round(n_inconsistentes / len(subset) * 100, 2) if len(subset) else 0,
     }
+
+
+# ============================================================
+# ESCALAMIENTO MULTI-ANIO
+# Funciones para procesar varios anios (ej. 2019-2023) de forma
+# parametrizada, con auditoria de esquema previa a la consolidacion.
+# ============================================================
+
+def audit_year_schema(year: int, raw_dir: str = "../data/raw", filename_pattern: str = "DEFUN{yy}.dbf") -> dict:
+    """Carga SOLO el esquema (nombres de columna) del archivo DEFUN de un anio
+    especifico, sin cargar todos los registros a memoria innecesariamente
+    (dbfread es lazy, pero aqui forzamos solo la lectura de columnas).
+
+    Retorna un diccionario con: anio, columnas encontradas, columnas
+    faltantes vs. DEFUN_CANONICAL_COLUMNS, y columnas extra no documentadas.
+    """
+    yy = str(year)[-2:]
+    path = f"{raw_dir}/{year}/{filename_pattern.format(yy=yy)}"
+    df_sample = load_dbf(path)
+    df_sample = normalize_columns(df_sample)
+    columnas_encontradas = set(df_sample.columns)
+    columnas_esperadas = set(DEFUN_CANONICAL_COLUMNS)
+    return {
+        "anio": year,
+        "n_columnas": len(columnas_encontradas),
+        "faltantes": sorted(columnas_esperadas - columnas_encontradas),
+        "extra_no_documentadas": sorted(columnas_encontradas - columnas_esperadas),
+    }
+
+
+def audit_multiple_years(years: list, raw_dir: str = "../data/raw", filename_pattern: str = "DEFUN{yy}.dbf") -> pd.DataFrame:
+    """Corre audit_year_schema para una lista de anios y devuelve un resumen
+    tabular. Revisar ANTES de intentar concatenar multiples anios: si hay
+    columnas faltantes/extra, hay que decidir como manejarlo (documentar en
+    methodology.md, no simplemente ignorar).
+    """
+    resultados = []
+    for year in years:
+        try:
+            r = audit_year_schema(year, raw_dir=raw_dir, filename_pattern=filename_pattern)
+        except Exception as e:
+            r = {"anio": year, "n_columnas": None, "faltantes": [f"ERROR: {e}"], "extra_no_documentadas": []}
+        resultados.append(r)
+    return pd.DataFrame(resultados)
+
+
+def load_and_filter_year(
+    year: int,
+    raw_dir: str = "../data/raw",
+    filename_pattern: str = "DEFUN{yy}.dbf",
+    tipo_defun_col: str = "Tipo_defun",
+    tipo_defun_suicidio: str = "3",
+) -> pd.DataFrame:
+    """Carga el archivo DEFUN de un anio especifico, normaliza columnas,
+    filtra al universo de suicidio (Tipo_defun == 3), y agrega una columna
+    'anio_dataset' para identificar la fuente al consolidar.
+    """
+    yy = str(year)[-2:]
+    path = f"{raw_dir}/{year}/{filename_pattern.format(yy=yy)}"
+    df = load_dbf(path)
+    df = normalize_columns(df)
+    df_filtrado = df[df[tipo_defun_col].astype(str).str.strip() == tipo_defun_suicidio].copy()
+    df_filtrado["anio_dataset"] = year
+    return df_filtrado
+
+
+def consolidate_years(years: list, raw_dir: str = "../data/raw", filename_pattern: str = "DEFUN{yy}.dbf") -> pd.DataFrame:
+    """Procesa una lista de anios (carga + filtro de suicidio) y los
+    consolida en un solo DataFrame con columna 'anio_dataset'. Imprime un
+    resumen de cuantos registros aporto cada anio.
+    """
+    dfs = []
+    for year in years:
+        df_year = load_and_filter_year(year, raw_dir=raw_dir, filename_pattern=filename_pattern)
+        print(f"{year}: {len(df_year):,} registros de suicidio")
+        dfs.append(df_year)
+    consolidado = pd.concat(dfs, ignore_index=True)
+    print(f"\nTotal consolidado: {len(consolidado):,} registros, {len(years)} anios")
+    return consolidado
