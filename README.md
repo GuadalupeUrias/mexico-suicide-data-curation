@@ -1,4 +1,5 @@
 # Curaduría de datos: Estadísticas de suicidio en México (INEGI, 2006-2023)
+[![DOI](https://zenodo.org/badge/1315245532.svg)](https://doi.org/10.5281/zenodo.21686584)
 
 ## Objetivo
 Curar, limpiar y validar los microdatos de suicidio de México, derivados de las
