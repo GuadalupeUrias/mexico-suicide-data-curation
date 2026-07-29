@@ -6,13 +6,57 @@ Se van agregando conforme se definen las reglas en 02_cleaning.ipynb.
 """
 
 import pandas as pd
-from simpledbf import Dbf5
+from dbfread import DBF
+
+# Nombres oficiales segun docs/data_dictionary.md (formato documentado por INEGI).
+# Los archivos .dbf guardan los campos en MAYUSCULAS internamente; esta lista
+# permite recuperar el formato "legible" documentado.
+DEFUN_CANONICAL_COLUMNS = [
+    "Ent_regis", "Mun_regis", "Tloc_regis", "Loc_regis", "Ent_resid", "Mun_resid",
+    "Tloc_resid", "Loc_resid", "Ent_ocurr", "Mun_ocurr", "Tloc_ocurr", "Loc_ocurr",
+    "Causa_def", "Cod_adicio", "Lista_mex", "Sexo", "Ent_nac", "Afromex", "Conindig",
+    "Lengua", "Cve_lengua", "Nacionalid", "Nacesp_cve", "Edad", "Sem_gest", "Gramos",
+    "Dia_ocurr", "Mes_ocurr", "Anio_ocur", "Dia_regis", "Mes_regis", "Anio_regis",
+    "Dia_nacim", "Mes_nacim", "Anio_nacim", "Cond_act", "Ocupacion", "Escolarida",
+    "Edo_civil", "Tipo_defun", "Ocurr_trab", "Lugar_ocur", "Par_agre", "Vio_fami",
+    "Asist_medi", "Cirugia", "Natviole", "Necropsia", "Usonecrops", "Encefalica",
+    "Donador", "Sitio_ocur", "Cond_cert", "Derechohab", "Embarazo", "Rel_emba",
+    "Horas", "Minutos", "Capitulo", "Grupo", "Lista1", "Gr_lismex", "Area_ur",
+    "Edad_agru", "Complicaro", "Dia_cert", "Mes_cert", "Anio_cert", "Maternas",
+    "Ent_ocules", "Mun_ocules", "Loc_ocules", "Razon_m", "Dis_re_oax",
+]
 
 
-def load_dbf(path: str) -> pd.DataFrame:
-    """Carga una tabla .dbf de INEGI (microdatos o catálogos) a un DataFrame."""
-    dbf = Dbf5(path, codec="latin1")
-    return dbf.to_dataframe()
+def load_dbf(path: str, encoding: str = "latin1") -> pd.DataFrame:
+    """Carga una tabla .dbf de INEGI (microdatos o catalogos) a un DataFrame.
+    Usa dbfread en lugar de simpledbf: mas confiable con archivos grandes en Windows
+    (simpledbf puede colgarse con archivos de 100MB+ por su manejo de temporales).
+    """
+    table = DBF(path, encoding=encoding, ignore_missing_memofile=True)
+    return pd.DataFrame(iter(table))
+
+
+def normalize_columns(df: pd.DataFrame, canonical_names: list = None) -> pd.DataFrame:
+    """Renombra columnas MAYUSCULAS (como las guarda el .dbf) al formato
+    documentado en data_dictionary.md (ej. TIPO_DEFUN -> Tipo_defun).
+    Columnas que no encuentren match quedan sin cambio (se imprime aviso).
+    """
+    canonical_names = canonical_names or DEFUN_CANONICAL_COLUMNS
+    lookup = {name.upper(): name for name in canonical_names}
+    df = df.copy()
+    new_columns = []
+    sin_match = []
+    for col in df.columns:
+        match = lookup.get(col.upper())
+        if match:
+            new_columns.append(match)
+        else:
+            new_columns.append(col)
+            sin_match.append(col)
+    df.columns = new_columns
+    if sin_match:
+        print(f"Columnas sin match en canonical_names (sin cambio): {sin_match}")
+    return df
 
 
 def load_raw_year(path: str, year: int) -> pd.DataFrame:
