@@ -35,6 +35,32 @@ CATALOG_CANONICAL_COLUMNS = [
     "Cap", "Gpo", "Clave",
 ]
 
+# Alias de columnas que cambiaron de nombre entre anios/versiones del
+# certificado de defuncion. Confirmado con evidencia cruzada (ver
+# docs/methodology.md): PRESUNTO (usado en 2019-2021) es la misma variable
+# que Tipo_defun (usado desde 2022), y el codigo "3" = Suicidio coincide en
+# ambos esquemas (validado contra cifra oficial INEGI 2019: 7,233 vs 7,225
+# obtenidos, diferencia 0.11%).
+COLUMN_ALIASES = {
+    "PRESUNTO": "Tipo_defun",
+}
+
+
+def apply_column_aliases(df: pd.DataFrame, alias_map: dict = None) -> pd.DataFrame:
+    """Renombra columnas que cambiaron de nombre entre anios (ej. PRESUNTO ->
+    Tipo_defun). Se aplica DESPUES de normalize_columns(). No sobreescribe si
+    la columna canonica ya existe (evita colisiones)."""
+    alias_map = alias_map or COLUMN_ALIASES
+    df = df.copy()
+    rename_dict = {}
+    for old_name, new_name in alias_map.items():
+        if old_name in df.columns and new_name not in df.columns:
+            rename_dict[old_name] = new_name
+    if rename_dict:
+        df = df.rename(columns=rename_dict)
+        print(f"Alias aplicados: {rename_dict}")
+    return df
+
 
 def load_dbf(path: str, encoding: str = "latin1") -> pd.DataFrame:
     """Carga una tabla .dbf de INEGI (microdatos o catalogos) a un DataFrame.
@@ -357,6 +383,7 @@ def audit_year_schema(year: int, raw_dir: str = "../data/raw", filename_pattern:
     path = f"{raw_dir}/{year}/{filename_pattern.format(yy=yy)}"
     df_sample = load_dbf(path)
     df_sample = normalize_columns(df_sample)
+    df_sample = apply_column_aliases(df_sample)
     columnas_encontradas = set(df_sample.columns)
     columnas_esperadas = set(DEFUN_CANONICAL_COLUMNS)
     return {
@@ -398,6 +425,7 @@ def load_and_filter_year(
     path = f"{raw_dir}/{year}/{filename_pattern.format(yy=yy)}"
     df = load_dbf(path)
     df = normalize_columns(df)
+    df = apply_column_aliases(df)
     df_filtrado = df[df[tipo_defun_col].astype(str).str.strip() == tipo_defun_suicidio].copy()
     df_filtrado["anio_dataset"] = year
     return df_filtrado
