@@ -148,8 +148,9 @@ documentadas en `methodology.md`:
 - [x] Consistencia entre años — auditada con `audit_multiple_years()` antes de
   consolidar; alias `PRESUNTO`→`Tipo_defun` aplicado y validado (ver
   `methodology.md`, sección 7b)
-- [ ] Validación de códigos de entidad/municipio contra catálogo vigente para
-  los años 2019-2022 y 2024 individualmente (solo se corrió a detalle para
-  2023; pendiente repetir por año o confirmar que el catálogo geográfico no
-  cambió en el periodo)
+- [x] Códigos de entidad/municipio contra catálogo vigente — validado para
+  los 6 años individualmente (`04_multi_year_pilot.ipynb`, sección 5b), 0
+  códigos huérfanos y 0 registros afectados en todos los años (2019-2024)
+
+## Estado del checklist: completo (6/6)
 
