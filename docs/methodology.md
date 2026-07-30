@@ -56,6 +56,11 @@ _pendiente_
   imputan ni se excluyen esos años.
 - 2022 solo tiene 1 variable ausente (`Vio_fami`) respecto al esquema de
   2023 — diferencia menor, mismo tratamiento (NaN).
+- **2024 son cifras PRELIMINARES** según el boletín oficial de INEGI (EDR
+  2024, publicado 2025) — sujetas a ajuste cuando se publique la versión
+  definitiva. Se documenta esta condición en `quality_report.md` al reportar
+  resultados de ese año; cualquier comparación contra cifras oficiales para
+  2024 debe considerarse provisional.
 
 ## 8. Principios FAIR aplicados
 - **Findable**: metadatos claros en este documento + data dictionary.
