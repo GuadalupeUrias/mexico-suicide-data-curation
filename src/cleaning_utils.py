@@ -444,3 +444,136 @@ def consolidate_years(years: list, raw_dir: str = "../data/raw", filename_patter
     consolidado = pd.concat(dfs, ignore_index=True)
     print(f"\nTotal consolidado: {len(consolidado):,} registros, {len(years)} anios")
     return consolidado
+
+
+# ============================================================
+# FASE 4: DOCUMENTACION
+# Generacion automatica de docs/data_dictionary.md a partir del
+# diseno de registro oficial de INEGI.
+# Fuente: https://www.inegi.org.mx/rnm/index.php/catalog/1140
+# (tabla DEFUN24, Estadisticas de Defunciones Registradas 2024, 74 variables)
+# ============================================================
+
+# Descripciones oficiales por variable. Las llaves coinciden con
+# DEFUN_CANONICAL_COLUMNS de arriba; se manejan por separado porque una es
+# "cual es el nombre correcto" y la otra es "que significa cada nombre".
+DEFUN_DESCRIPTIONS = {
+    "Ent_regis": "Entidad federativa de registro",
+    "Mun_regis": "Municipio de registro",
+    "Tloc_regis": "Tamano de localidad de registro (asignado por numero de habitantes, no viene del certificado)",
+    "Loc_regis": "Localidad de registro",
+    "Ent_resid": "Entidad federativa de residencia habitual del fallecido",
+    "Mun_resid": "Municipio de residencia habitual del fallecido",
+    "Tloc_resid": "Tamano de localidad de residencia habitual (asignado por numero de habitantes)",
+    "Loc_resid": "Localidad de residencia habitual",
+    "Ent_ocurr": "Entidad federativa de ocurrencia (domicilio donde sucedio la defuncion)",
+    "Mun_ocurr": "Municipio de ocurrencia",
+    "Tloc_ocurr": "Tamano de localidad de ocurrencia (asignado por numero de habitantes)",
+    "Loc_ocurr": "Localidad de ocurrencia",
+    "Causa_def": "Causa de la defuncion, lista detallada (codigo CIE-10)",
+    "Cod_adicio": "Codigo adicional CIE-10",
+    "Lista_mex": "Causa de la defuncion segun Lista Mexicana",
+    "Sexo": "Sexo (1=Hombre, 2=Mujer, 99=Se ignora)",
+    "Ent_nac": "Lugar de nacimiento (entidad federativa o pais si nacio en el extranjero)",
+    "Afromex": "Condicion de autoadscripcion como persona afromexicana (1=Si, 2=No, 9=Se ignora)",
+    "Conindig": "Condicion de autoadscripcion como persona indigena (1=Si, 2=No, 9=Se ignora)",
+    "Lengua": "Condicion de habla de lengua indigena (1=Si, 2=No, 9=Se ignora)",
+    "Cve_lengua": "Clave de la lengua indigena hablada",
+    "Nacionalid": "Nacionalidad (1=Mexicana, 2=Otra, 9=Se ignora)",
+    "Nacesp_cve": "Nacionalidad extranjera especifica",
+    "Edad": "Edad cumplida del fallecido (unidad depende del rango: horas/dias/meses/anios; ver split_edad)",
+    "Sem_gest": "Semanas de gestacion (solo para fallecidos con menos de 28 dias de edad)",
+    "Gramos": "Peso al nacer en gramos (solo para fallecidos con menos de 28 dias de edad)",
+    "Dia_ocurr": "Dia de la defuncion",
+    "Mes_ocurr": "Mes de la defuncion",
+    "Anio_ocur": "Anio de la defuncion",
+    "Dia_regis": "Dia de registro",
+    "Mes_regis": "Mes de registro",
+    "Anio_regis": "Anio de registro",
+    "Dia_nacim": "Dia de nacimiento",
+    "Mes_nacim": "Mes de nacimiento",
+    "Anio_nacim": "Anio de nacimiento",
+    "Cond_act": "Condicion de actividad economica (1=Trabajaba, 2=No, 9=Se ignora)",
+    "Ocupacion": "Ocupacion (codigo; 997-999=Se ignora)",
+    "Escolarida": "Nivel de escolaridad (1=Ninguna...10=Posgrado, 88/99=Se ignora)",
+    "Edo_civil": "Estado conyugal (1=Soltera/o, 2=Viuda/o, 3=Divorciada/o, 4=Union libre, 5=Casada/o, 6=Separada/o, 8/9=Se ignora)",
+    "Tipo_defun": "Tipo de defuncion (1=Accidente, 2=Agresion, 3=Lesion autoinfligida intencional [suicidio], 4=Enfermedad, 5=Intervencion legal, 9=Se ignora)",
+    "Ocurr_trab": "Ocurrio en el desempeno de su trabajo (1=Si, 2=No, 8/9=Se ignora)",
+    "Lugar_ocur": "Lugar donde ocurrio la lesion: tipo de sitio fisico (0=Vivienda particular, 1=Vivienda colectiva, 2=Escuela/oficina publica, 3=Area deportiva, 4=Calle/carretera, 5=Area comercial, 6=Area industrial, 7=Granja, 8=Otro, 9/88=Se ignora)",
+    "Par_agre": "Parentesco de la persona presuntamente agresora con el fallecido",
+    "Vio_fami": "Condicion de violencia familiar en relacion con la persona agresora",
+    "Asist_medi": "Tuvo atencion medica durante la enfermedad o lesion antes de la muerte (1=Si, 2=No, 9=Se ignora)",
+    "Cirugia": "Se realizo cirugia en las ultimas 4 semanas previas al fallecimiento (1=Si, 2=No, 9=Se ignora)",
+    "Natviole": "La defuncion fue accidental o violenta (1=Si, 2=No, 9=Se ignora)",
+    "Necropsia": "Se practico necropsia (1=Si, 2=No, 9=Se ignora)",
+    "Usonecrops": "Los hallazgos de la necropsia se usaron en la certificacion (1=Si, 2=No, 8/9=Se ignora)",
+    "Encefalica": "Presento muerte encefalica (1=Si, 2=No)",
+    "Donador": "Fue donador(a) de organos (1=Si, 2=No)",
+    "Sitio_ocur": "Sitio de ocurrencia de la defuncion: tipo de institucion (1=Secretaria de Salud, 2=IMSS Bienestar, 3=IMSS, 4=ISSSTE, 5=PEMEX, 6=SEDENA, 7=SEMAR, 8=Otra unidad medica publica, 9=Unidad medica privada, 10=Via publica, 11=Hogar, 12=Otro, 13=IMSS Bienestar OPD, 99=Se ignora)",
+    "Cond_cert": "Persona que certifico (1=Medica/o tratante, 2=Medica/o legista, 3=Otra/o medica/o, 4=Autorizada SSA, 5=Autoridad civil, 8=Otro)",
+    "Derechohab": "Afiliacion a servicios de salud (1=Ninguna, 2=IMSS, 3=ISSSTE, 4=PEMEX, 5=SEDENA, 6=SEMAR, 8=Otra, 10=IMSS Bienestar, 11=ISSFAM, 99=Se ignora)",
+    "Embarazo": "Momento de la defuncion respecto al embarazo, en mujeres de 10-54 anios (1=Embarazo, 2=Parto, 3=Puerperio, 4=43 dias-11 meses posparto, 5=No embarazada)",
+    "Rel_emba": "Las causas fueron complicaciones propias del embarazo, parto o puerperio (1=Si, 2=No)",
+    "Horas": "Hora de la defuncion",
+    "Minutos": "Minuto de la defuncion",
+    "Capitulo": "Capitulo CIE-10 de la causa de defuncion (variable derivada)",
+    "Grupo": "Grupo CIE-10 de la causa de defuncion (variable derivada)",
+    "Lista1": "Causa de defuncion, Lista 1 CIE-10 (variable derivada)",
+    "Gr_lismex": "Grupo segun Lista Mexicana (variable derivada)",
+    "Area_ur": "Area urbana/rural de residencia habitual (1=Urbana, 2=Rural)",
+    "Edad_agru": "Edad agrupada en rangos quinquenales oficiales (variable derivada de Edad)",
+    "Complicaro": "Las causas anotadas complicaron el embarazo, parto o puerperio (1=Si, 2=No)",
+    "Dia_cert": "Dia de certificacion",
+    "Mes_cert": "Mes de certificacion",
+    "Anio_cert": "Anio de certificacion",
+    "Maternas": "Causas maternas detalladas (CIE-10, variable derivada)",
+    "Ent_ocules": "Entidad federativa donde ocurrio la lesion (distinto del domicilio donde ocurrio la defuncion)",
+    "Mun_ocules": "Municipio donde ocurrio la lesion",
+    "Loc_ocules": "Localidad donde ocurrio la lesion",
+    "Razon_m": "Razon materna (variable derivada, sin pregunta directa en el certificado)",
+    "Dis_re_oax": "Distrito de registro especifico para el estado de Oaxaca",
+    # Variables agregadas por este pipeline (no son originales de INEGI):
+    "anio_dataset": "Anio del archivo fuente (agregada por consolidate_years, no es original de INEGI)",
+    "edad_valor": "Valor numerico de la edad, ya separado de su unidad (agregada por split_edad)",
+    "edad_unidad": "Unidad de la edad: horas/dias/meses/anios/no_especificado (agregada por split_edad)",
+    "sexo_desc": "Etiqueta legible de Sexo (agregada en 02_cleaning.ipynb)",
+    "causa_def_desc": "Etiqueta legible de Causa_def via catalogo CATMINDE (agregada en 02_cleaning.ipynb)",
+    "ent_ocurr_desc": "Etiqueta legible de Ent_ocurr via catalogo geografico (agregada en 02_cleaning.ipynb)",
+}
+
+
+def generar_data_dictionary(df: pd.DataFrame, output_path: str = "../docs/data_dictionary.md") -> pd.DataFrame:
+    """Genera el diccionario de datos a partir de las columnas de df,
+    usando DEFUN_DESCRIPTIONS como fuente de descripciones oficiales.
+    Guarda el resultado como Markdown en output_path y tambien lo regresa
+    como DataFrame para inspeccion rapida en el notebook.
+
+    Columnas sin match en DEFUN_DESCRIPTIONS quedan marcadas con TODO,
+    para que sea evidente que falta documentarlas (no se deja en blanco).
+    """
+    filas = []
+    for col in df.columns:
+        serie = df[col]
+        filas.append({
+            "variable": col,
+            "descripcion": DEFUN_DESCRIPTIONS.get(
+                col, "**TODO: sin descripcion, verificar en diseno de registro oficial**"
+            ),
+            "tipo_dato": str(serie.dtype),
+            "pct_nulos": round(serie.isnull().mean() * 100, 2),
+            "n_unicos": serie.nunique(),
+            "ejemplo": serie.dropna().iloc[0] if serie.notna().any() else "N/A",
+        })
+    df_dicc = pd.DataFrame(filas)
+
+    with open(output_path, "w", encoding="utf-8") as f:
+        f.write("# Diccionario de Datos - Suicidios Mexico (EDR/ISS, INEGI)\n\n")
+        f.write("Descripciones basadas en el diseno de registro oficial de INEGI:\n")
+        f.write("https://www.inegi.org.mx/rnm/index.php/catalog/1140\n\n")
+        f.write(df_dicc.to_markdown(index=False))
+
+    n_todo = (df_dicc["descripcion"].str.startswith("**TODO")).sum()
+    print(f"Diccionario guardado en: {output_path}")
+    print(f"Variables documentadas: {len(df_dicc) - n_todo} de {len(df_dicc)}"
+          + (f" ({n_todo} pendientes de descripcion)" if n_todo else " (completo)"))
+    return df_dicc
