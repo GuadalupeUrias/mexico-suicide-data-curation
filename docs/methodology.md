@@ -35,7 +35,15 @@ _pendiente_
 ## 7. Saltos metodológicos conocidos (documentados por INEGI)
 - Hasta 2005: datos captados en agencias del Ministerio Público.
 - Desde 2006: datos derivados de estadísticas de mortalidad (EDR).
-- 2020-2021: posible efecto de subregistro/retraso por pandemia — verificar en perfilado.
+- **Hallazgo real (piloto multi-año 2019-2024):** se documentó como hipótesis
+  pendiente un posible efecto de subregistro/caída en 2020-2021 por la
+  pandemia. La evidencia real **no confirma esa hipótesis** — el conteo de
+  suicidio muestra incremento sostenido en esos años (2019: 7,225 → 2020:
+  7,896 [+9.29%] → 2021: 8,433 [+6.80%]), sin caída. La tendencia general
+  2019-2023 es un aumento del 25.6% en 5 años, con aparente estabilización
+  entre 2023 (9,072) y 2024 preliminar (9,051, -0.23%). Se documenta el
+  hallazgo real en lugar de la hipótesis original, y se marca 2024 como
+  preliminar (ver 7b) al interpretar la aparente estabilización.
 
 ## 7b. Diferencias de esquema detectadas al escalar a multi-año (piloto 2019-2023)
 - **`PRESUNTO` (2019-2021) es la misma variable que `Tipo_defun` (2022-2023)** —
