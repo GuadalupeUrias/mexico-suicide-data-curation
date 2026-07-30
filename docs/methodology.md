@@ -1,6 +1,7 @@
 # Metodología
 
-> Estado: borrador — se completa durante el perfilado y limpieza.
+> Estado: completo — pipeline validado sobre 2023 (piloto) y consolidado
+> 2019-2024 (49,918 registros).
 
 ## 1. Fuente y alcance
 - Fuente: INEGI, Estadísticas de Defunciones Registradas (EDR), 2006-2023.
@@ -23,14 +24,55 @@
 | `Causa_def`, `Ent_ocurr`, `Sexo` | Códigos sin etiqueta legible | Traducción vía `translate_catalog()` cruzando contra catálogos oficiales (`CATMINDE.dbf`, `CATEMLDE23.dbf`), agregando columnas `*_desc` sin eliminar el código original | Mantener ambas versiones permite trazabilidad y facilita el análisis exploratorio |
 
 ## 4. Normalización de catálogos
-- Códigos de entidad/municipio: catálogo INEGI vigente usado como referencia = _pendiente_.
-- Cambios de nomenclatura detectados entre años: _pendiente_.
+- **Códigos de entidad/municipio**: catálogo INEGI vigente usado como referencia =
+  `CATEMLDE23.dbf` (Catálogo Único de Claves de Áreas Geoestadísticas Estatales,
+  Municipales y Localidades). Validado sin códigos huérfanos contra el dataset 2023
+  (ver `quality_report.md`, sección de validaciones).
+- **Nombres de columna**: los archivos `.dbf` de origen guardan los campos en
+  MAYÚSCULAS; se normalizan al formato documentado (`Ent_ocurr`, no `ENT_OCURR`)
+  con `normalize_columns()`, usando como referencia canónica el diseño de registro
+  oficial de INEGI: https://www.inegi.org.mx/rnm/index.php/catalog/1140 (tabla
+  DEFUN24, Estadísticas de Defunciones Registradas 2024, 74 variables).
+- **Cambios de nomenclatura detectados entre años**: ver sección 7b (`PRESUNTO` →
+  `Tipo_defun`).
+- **Corrección de documentación (hallazgo del control de calidad interno)**:
+  al cruzar las descripciones cortas usadas en versiones tempranas de este
+  documento contra el diseño de registro oficial, se detectó que `Lugar_ocur`
+  y `Sitio_ocur` estaban descritas de forma invertida. La corrección:
+  - `Lugar_ocur` = tipo de **sitio físico** donde ocurrió la lesión (vivienda,
+    calle, escuela, área industrial, etc. — pregunta 32 del certificado).
+  - `Sitio_ocur` = tipo de **institución de salud** donde ocurrió la defunción
+    (IMSS, ISSSTE, vía pública, hogar, etc. — pregunta 19 del certificado).
+  Este hallazgo se documenta como evidencia del propio proceso de control de
+  calidad: las descripciones actuales en `data_dictionary.md` (generado por
+  `generar_data_dictionary()` en `cleaning_utils.py`) ya reflejan la versión
+  corregida, tomada directamente del documento oficial de INEGI, no de
+  inferencia por nomenclatura.
 
 ## 5. Manejo de valores nulos / no especificados
-_pendiente_
+- **Principio general**: no se imputa ningún valor faltante o "no especificado".
+  Se preservan como `NaN` explícito (ver sección 3, regla de recodificación) para
+  mantener la honestidad del dato sobre la completitud aparente (principio FAIR:
+  Reusable).
+- **Umbral de precaución**: variables con más de 15% de valores "no especificado"
+  se marcan explícitamente en `quality_report.md` como de uso cauteloso en análisis
+  que dependan de ellas (ej. `Ocurr_trab`, `Derechohab`, `Asist_medi`). El detalle
+  completo por variable está en `quality_report.md`, sección "Nulos ocultos".
+- **Caso especial multi-año**: variables ausentes del certificado en 2019-2021
+  (ej. `Afromex`, `Cirugia`, `Encefalica`) se dejan como `NaN` para esos años al
+  consolidar, no se excluyen esos años ni se imputa un valor por defecto (ver
+  sección 7b). Esto se refleja directamente en `data_dictionary.md`: esas
+  variables muestran ~47% de nulos en el consolidado, proporcional a los 3 de 6
+  años donde no existían — es una verificación cruzada interna de que la regla
+  se aplicó correctamente.
 
 ## 6. Deduplicación
-_pendiente_
+- Se verificó con `duplicate_report()` sobre registros exactos (todas las columnas).
+- **Resultado 2023 (piloto)**: 0 duplicados sobre 9,072 registros.
+- **Resultado consolidado 2019-2024**: 0 duplicados sobre 49,918 registros.
+- No se aplicó ninguna regla de deduplicación porque no se encontraron casos.
+  Se documenta el resultado (no solo la ausencia de regla) porque un reporte de
+  calidad debe mostrar que se buscó, no asumir que no había que buscar.
 
 ## 7. Saltos metodológicos conocidos (documentados por INEGI)
 - Hasta 2005: datos captados en agencias del Ministerio Público.
@@ -71,7 +113,24 @@ _pendiente_
   2024 debe considerarse provisional.
 
 ## 8. Principios FAIR aplicados
-- **Findable**: metadatos claros en este documento + data dictionary.
+- **Findable**: metadatos claros en este documento + data dictionary; repositorio
+  registrado como obra citable en Zenodo, DOI: `10.5281/zenodo.21686584`.
 - **Accessible**: datos procesados en formato abierto (CSV) en `data/processed/`.
-- **Interoperable**: nomenclatura de columnas estandarizada, tipos de dato explícitos.
-- **Reusable**: licencia clara, metodología documentada, código reproducible.
+- **Interoperable**: nomenclatura de columnas estandarizada, tipos de dato
+  explícitos, códigos de catálogo documentados con su significado oficial.
+- **Reusable**: licencia MIT (código), metodología documentada, código
+  reproducible, diccionario de datos generado automáticamente a partir de la
+  fuente oficial (ver sección 9).
+
+## 9. Diccionario de datos automatizado
+- `docs/data_dictionary.md` se genera con `generar_data_dictionary()` en
+  `src/cleaning_utils.py`, ejecutado desde `notebooks/05_documentation.ipynb`.
+- Las descripciones de cada variable (`DEFUN_DESCRIPTIONS` en `cleaning_utils.py`)
+  provienen del diseño de registro oficial de INEGI, no de inferencia por
+  nomenclatura — esto evita el tipo de error corregido en la sección 4
+  (`Lugar_ocur`/`Sitio_ocur`).
+- La función reporta cuántas variables quedan sin descripción (`TODO`) si se
+  agrega una columna nueva al dataset que no esté en `DEFUN_DESCRIPTIONS`,
+  para que nunca quede una variable sin documentar silenciosamente.
+- Al reejecutarse (ej. si se agregan más años), el diccionario se actualiza
+  solo — no requiere edición manual.
