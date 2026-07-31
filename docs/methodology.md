@@ -4,7 +4,9 @@
 > 2019-2024 (49,918 registros).
 
 ## 1. Fuente y alcance
-- Fuente: INEGI, Estadísticas de Defunciones Registradas (EDR), 2006-2023.
+- Fuente: INEGI, Estadísticas de Defunciones Registradas (EDR), 2019-2024 
+(2024 = cifras preliminares). Cobertura histórica de INEGI disponible desde 
+2006; este pipeline consolida específicamente 2019-2024.
 - Filtro de inclusión: `tipo_defun` = accidental/violenta AND presunción = suicidio
   (CIE-10 X60-X84).
 - Nivel de agregación: registro individual (microdato).

@@ -1,113 +1,84 @@
-# Diccionario de datos
+# Diccionario de Datos - Suicidios Mexico (EDR/ISS, INEGI)
 
-Fuente: INEGI, Estadísticas de Defunciones Registradas (EDR) 2023, tabla `DEFUN23.dbf`.
-Documento base: `Descripcion_BD_Defunciones_2023.pdf` (INEGI, 2024).
+Descripciones basadas en el diseno de registro oficial de INEGI:
+https://www.inegi.org.mx/rnm/index.php/catalog/1140
 
-> Este diccionario cubre la tabla principal (74 variables). Las tablas de catálogo
-> (geográfico, causas, etc.) se documentan en la sección "Catálogos de referencia".
-
-## Variable de filtrado (universo de este proyecto)
-
-| Variable | Descripción | Valor de interés |
-|---|---|---|
-| `Tipo_defun` | Presunción de tipo de defunción | `3` = Suicidio (Lesión autoinfligida). Resto: 1=Accidente, 2=Homicidio, 4=Enfermedad, 5=Intervención legal, 9=Se ignora |
-
-## Tabla principal (DEFUN23.dbf) — 74 variables
-
-| # | Variable | Descripción | Tipo/long | Rango |
-|---|---|---|---|---|
-| 1 | Ent_regis | Entidad de registro | C(2) | 01-32 |
-| 2 | Mun_regis | Municipio de registro | C(3) | 001-570 |
-| 3 | Tloc_regis | Tamaño de localidad de registro | N(2) | 1-17, 99 |
-| 4 | Loc_regis | Localidad de registro | C(4) | 0001-6999, 7777 |
-| 5 | Ent_resid | Entidad de residencia habitual | C(2) | 01-35, 99 |
-| 6 | Mun_resid | Municipio de residencia habitual | C(3) | 001-570, 999 |
-| 7 | Tloc_resid | Tamaño de localidad de residencia | N(2) | 1-17, 99 |
-| 8 | Loc_resid | Localidad de residencia | C(4) | 0001-6999, 7777, 9999 |
-| 9 | Ent_ocurr | Entidad de ocurrencia | C(2) | 01-32, 99 |
-| 10 | Mun_ocurr | Municipio de ocurrencia | C(3) | 001-570, 999 |
-| 11 | Tloc_ocurr | Tamaño de localidad de ocurrencia | N(2) | 1-17, 99 |
-| 12 | Loc_ocurr | Localidad de ocurrencia | C(4) | 0001-6999, 7777, 9999 |
-| 13 | Causa_def | Causa básica de defunción (CIE-10 detallada) | C(4) | A000-R99X, U070-U129, V010-Y899 |
-| 14 | Cod_adicio | Código adicional CIE-10 | C(4) | B950-P75X, S000-T983 |
-| 15 | Lista_mex | Causa según lista mexicana | C(3) | 01-59, 61 |
-| 16 | Sexo | Sexo del fallecido | N(1) | 1=Hombre, 2=Mujer, 9=No especificado |
-| 17 | Ent_nac | Entidad/país de nacimiento | C(3) | 001-032, 101-535, 888, 997-999 |
-| 18 | Afromex | Autodescripción afromexicana | C(1) | 1=Sí, 2=No, 8=No aplica, 9=No esp. |
-| 19 | Conindig | Autodescripción indígena | C(1) | 1=Sí, 2=No, 8=No aplica, 9=No esp. |
-| 20 | Lengua | Habla lengua indígena | C(1) | 1=Sí, 2=No, 8=No aplica, 9=Se ignora |
-| 21 | Cve_lengua | Clave de lengua indígena | C(4) | ver catálogo LENGUAS |
-| 22 | Nacionalid | Nacionalidad | C(1) | 1=Mexicana, 2=Extranjera, 9=No esp. |
-| 23 | Nacesp_cve | Nacionalidad extranjera (código) | C(3) | ver catálogo PAISES |
-| 24 | Edad | Edad del fallecido (codificada por unidad) | N(4) | 1001-1023=horas, 2001-2029=días, 3001-3011=meses, 4001-4120=años, 4998=no esp. |
-| 25 | Sem_gest | Semanas de gestación (<28 días) | N(2) | 22-42, 88, 99 |
-| 26 | Gramos | Peso en gramos (<28 días) | N(4) | 600-6000, 8888, 9999 |
-| 27 | Dia_ocurr | Día de ocurrencia | N(2) | 1-31, 99 |
-| 28 | Mes_ocurr | Mes de ocurrencia | N(2) | 1-12, 99 |
-| 29 | Anio_ocur | Año de ocurrencia | N(4) | 1900-2023, 9999 |
-| 30 | Dia_regis | Día de registro | N(2) | 1-31, 99 |
-| 31 | Mes_regis | Mes de registro | N(2) | 1-12 |
-| 32 | Anio_regis | Año de registro | N(4) | 2023 |
-| 33 | Dia_nacim | Día de nacimiento | N(2) | 1-31, 99 |
-| 34 | Mes_nacim | Mes de nacimiento | N(2) | 1-12, 99 |
-| 35 | Anio_nacim | Año de nacimiento | N(4) | 1897-2023, 9999 |
-| 36 | Cond_act | Condición de actividad económica | N(1) | 1=Sí, 2=No, 8=No aplica <5 años, 9=Se ignora |
-| 37 | Ocupacion | Ocupación del fallecido | C(3) | ver catálogo OCUPACIONES (SINCO 2019) |
-| 38 | Escolarida | Nivel de escolaridad | N(2) | 1-10, 88=No aplica <3 años, 99=No esp. |
-| 39 | Edo_civil | Situación conyugal | N(1) | 1-6, 8=No aplica <12 años, 9=No esp. |
-| **40** | **Tipo_defun** | **Tipo de defunción (presunción)** | **N(1)** | **1=Accidente, 2=Homicidio, 3=Suicidio, 4=Enfermedad, 5=Intervención legal, 9=Se ignora** |
-| 41 | Ocurr_trab | Ocurrió en desempeño del trabajo | N(1) | 1=Sí, 2=No, 8=No aplica, 9=No esp. |
-| 42 | Lugar_ocur | Espacio físico del hecho | N(2) | 0-9, 88=No aplica (muerte natural) |
-| 43 | Par_agre | Parentesco del presunto agresor | N(2) | 1-72, 88, 99; ver catálogo PARENTESCO |
-| 44 | Vio_fami | Violencia familiar (solo homicidios) | N(1) | 1=Sí, 2=No, 8=No aplica, 9=No esp. |
-| 45 | Asist_medi | Atención médica antes de la muerte | N(1) | 1=Con, 2=Sin, 9=No esp. |
-| 46 | Cirugia | Cirugía en últimas 4 semanas | C(1) | 1=Sí, 2=No, 8=No aplica, 9=No esp. |
-| 47 | Natviole | Muerte accidental o violenta | C(1) | 1=Sí, 2=No, 8=No aplica |
-| 48 | Necropsia | Se realizó necropsia | C(1) | 1=Sí, 2=No, 9=No esp. |
-| 49 | Usonecrops | Necropsia usada en certificación | C(1) | 1=Sí, 2=No, 8=No aplica, 9=No esp. |
-| 50 | Encefalica | Muerte encefálica | C(1) | 1=Sí, 2=No, 8=No aplica, 9=No esp. |
-| 51 | Donador | Donador de órganos | C(1) | 1=Sí, 2=No, 8=No aplica, 9=No esp. |
-| 52 | Sitio_ocur | Sitio de ocurrencia de la defunción | N(2) | 1-12, 99; ver etiquetas (institución de salud, vía pública, hogar...) |
-| 53 | Cond_cert | Persona que certificó | N(1) | 1-5, 8, 9 |
-| 54 | Derechohab | Afiliación a servicios de salud | N(2) | 1-10, 99 |
-| 55 | Embarazo | Condición de embarazo (mujeres 10-54) | N(1) | 1-5, 8, 9 |
-| 56 | Rel_emba | Relación causa-embarazo | N(1) | 1=Sí, 2=No, 8=No aplica, 9=No esp. |
-| 57 | Horas | Hora de la defunción | N(2) | 0-23, 99 |
-| 58 | Minutos | Minuto de la defunción | N(2) | 0-59, 99 |
-| 59 | Capitulo | Capítulo CIE-10 | N(2) | 1-18, 20, 22 |
-| 60 | Grupo | Grupo CIE-10 | N(2) | 1-35 |
-| 61 | Lista1 | Lista de tabulación OMS 1990 | C(3) | 001-103, 902, 903 |
-| 62 | Gr_lismex | Grupo lista mexicana | C(3) | 01-48, E49-E59 |
-| 63 | Area_ur | Área urbana/rural de residencia | N(1) | 1=Urbana, 2=Rural, 9=No esp. |
-| 64 | Edad_agru | Edad agrupada (quinquenal) | C(2) | 01-30 |
-| 65 | Complicaro | Complicaciones de embarazo | N(1) | 1=Sí, 2=No, 8=No aplica, 9=No esp. |
-| 66 | Dia_cert | Día de certificación | N(2) | 1-31, 99 |
-| 67 | Mes_cert | Mes de certificación | N(2) | 1-12, 99 |
-| 68 | Anio_cert | Año de certificación | N(4) | 2022-2023 |
-| 69 | Maternas | Defunciones maternas | C(4) | ver catálogo CATMINDE |
-| 70 | Ent_ocules | Entidad de ocurrencia de la lesión | C(2) | 01-35, 88, 99 |
-| 71 | Mun_ocules | Municipio de ocurrencia de la lesión | C(3) | 001-570, 888, 999 |
-| 72 | Loc_ocules | Localidad de ocurrencia de la lesión | C(4) | 0001-6999, 7777, 8888, 9999 |
-| 73 | Razon_m | Contribuye a razón de mortalidad materna | N(1) | 1, vacío |
-| 74 | Dis_re_oax | Distrito de registro de Oaxaca | C(3) | 901-930, 999 |
-
-## Catálogos de referencia (tablas auxiliares)
-
-| Archivo | Contenido | Relación |
-|---|---|---|
-| `CATEMLDE23.dbf` | Entidad, municipio, localidad (nombre) | `Cve_ent`, `Cve_mun`, `Cve_loc` ↔ `Ent_*`, `Mun_*`, `Loc_*` |
-| `CATMINDE.dbf` | Causa de defunción detallada (CIE-10) | `Cve` ↔ `Causa_def` |
-| `LISTAMEX.dbf` | Causa según lista mexicana | `Cve` ↔ `Lista_mex` |
-| `CAPGPO.dbf` | Capítulo y grupo CIE-10 | `Cap`+`Gpo` ↔ `Capitulo`+`Grupo` |
-| `GPOLIMEX.dbf` | Grupo lista mexicana | `Cve` ↔ `Gr_lismex` |
-| `LISTA1.dbf` | Lista de tabulación OMS | `Cve` ↔ `Lista1` |
-| `PARENTESCO.dbf` | Parentesco presunto agresor | `Cve` ↔ `Par_agre` |
-| `PAISES.dbf` | Países/entidad de nacimiento | `Cve` ↔ `Ent_nac`, `Nacesp_cve` |
-| `OCUPACIONES.dbf` | Ocupación (SINCO 2019) | `Cve` ↔ `Ocupacion` |
-| `COD_ADICIO.dbf` | Código adicional CIE-10 | `Cve` ↔ `Cod_adicio` |
-| `LENGUAS.dbf` | Lenguas indígenas (INALI) | `Clave` ↔ `Cve_lengua` |
-
-## Convenciones
-- Codificación de origen: `latin1` (típico en archivos `.dbf` de INEGI) — usar `codec='latin1'` al leer con `simpledbf`.
-- Códigos "no especificado"/"se ignora" varían por variable (8, 9, 88, 98, 99, 888, 999, 9999 según longitud) — **no tratar como cero**, son nulos categóricos.
-- La variable `Edad` mezcla unidades (horas/días/meses/años) en un solo campo numérico — requiere transformación antes de análisis.
+| variable     | descripcion                                                                                                                                                                                                                                                                     | tipo_dato   |   pct_nulos |   n_unicos | ejemplo   |
+|:-------------|:--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|:------------|------------:|-----------:|:----------|
+| Ent_regis    | Entidad federativa de registro                                                                                                                                                                                                                                                  | str         |        0    |         32 | 01        |
+| Mun_regis    | Municipio de registro                                                                                                                                                                                                                                                           | str         |        0    |        178 | 001       |
+| Ent_resid    | Entidad federativa de residencia habitual del fallecido                                                                                                                                                                                                                         | str         |        0    |         36 | 01        |
+| Mun_resid    | Municipio de residencia habitual del fallecido                                                                                                                                                                                                                                  | str         |        0    |        380 | 001       |
+| Tloc_resid   | Tamano de localidad de residencia habitual (asignado por numero de habitantes)                                                                                                                                                                                                  | str         |        0    |         18 | 15        |
+| Loc_resid    | Localidad de residencia habitual                                                                                                                                                                                                                                                | str         |        0    |        552 | 0001      |
+| Ent_ocurr    | Entidad federativa de ocurrencia (domicilio donde sucedio la defuncion)                                                                                                                                                                                                         | str         |        0    |         33 | 01        |
+| Mun_ocurr    | Municipio de ocurrencia                                                                                                                                                                                                                                                         | str         |        0    |        364 | 001       |
+| Tloc_ocurr   | Tamano de localidad de ocurrencia (asignado por numero de habitantes)                                                                                                                                                                                                           | str         |        0    |         18 | 15        |
+| Loc_ocurr    | Localidad de ocurrencia                                                                                                                                                                                                                                                         | str         |        0    |        501 | 0001      |
+| Causa_def    | Causa de la defuncion, lista detallada (codigo CIE-10)                                                                                                                                                                                                                          | str         |        0    |        144 | X700      |
+| Lista_mex    | Causa de la defuncion segun Lista Mexicana                                                                                                                                                                                                                                      | str         |        0    |          2 | 54        |
+| Sexo         | Sexo (1=Hombre, 2=Mujer, 99=Se ignora)                                                                                                                                                                                                                                          | str         |        0.07 |          2 | 1.0       |
+| Edad         | Edad cumplida del fallecido (unidad depende del rango: horas/dias/meses/anios; ver split_edad)                                                                                                                                                                                  | str         |        0    |         95 | 4036      |
+| Dia_ocurr    | Dia de la defuncion                                                                                                                                                                                                                                                             | str         |        0    |         32 | 15        |
+| Mes_ocurr    | Mes de la defuncion                                                                                                                                                                                                                                                             | str         |        0    |         13 | 7         |
+| Anio_ocur    | Anio de la defuncion                                                                                                                                                                                                                                                            | str         |        0    |         18 | 2019      |
+| Dia_regis    | Dia de registro                                                                                                                                                                                                                                                                 | str         |        0    |         32 | 99        |
+| Mes_regis    | Mes de registro                                                                                                                                                                                                                                                                 | str         |        0    |         12 | 7         |
+| Anio_regis   | Anio de registro                                                                                                                                                                                                                                                                | str         |        0    |          6 | 2019      |
+| Dia_nacim    | Dia de nacimiento                                                                                                                                                                                                                                                               | str         |        0    |         32 | 27        |
+| Mes_nacim    | Mes de nacimiento                                                                                                                                                                                                                                                               | str         |        0    |         13 | 2         |
+| Anio_nacim   | Anio de nacimiento                                                                                                                                                                                                                                                              | str         |        0    |        101 | 1983      |
+| Ocupacion    | Ocupacion (codigo; 997-999=Se ignora)                                                                                                                                                                                                                                           | str         |       11.81 |         66 | 98        |
+| Escolarida   | Nivel de escolaridad (1=Ninguna...10=Posgrado, 88/99=Se ignora)                                                                                                                                                                                                                 | str         |        4.5  |         10 | 6.0       |
+| Edo_civil    | Estado conyugal (1=Soltera/o, 2=Viuda/o, 3=Divorciada/o, 4=Union libre, 5=Casada/o, 6=Separada/o, 8/9=Se ignora)                                                                                                                                                                | str         |        7.17 |          6 | 1.0       |
+| Tipo_defun   | Tipo de defuncion (1=Accidente, 2=Agresion, 3=Lesion autoinfligida intencional [suicidio], 4=Enfermedad, 5=Intervencion legal, 9=Se ignora)                                                                                                                                     | str         |        0    |          1 | 3         |
+| Ocurr_trab   | Ocurrio en el desempeno de su trabajo (1=Si, 2=No, 8/9=Se ignora)                                                                                                                                                                                                               | str         |       26.71 |          2 | 2.0       |
+| Lugar_ocur   | Lugar donde ocurrio la lesion: tipo de sitio fisico (0=Vivienda particular, 1=Vivienda colectiva, 2=Escuela/oficina publica, 3=Area deportiva, 4=Calle/carretera, 5=Area comercial, 6=Area industrial, 7=Granja, 8=Otro, 9/88=Se ignora)                                        | str         |       10.66 |          9 | 0.0       |
+| Necropsia    | Se practico necropsia (1=Si, 2=No, 9=Se ignora)                                                                                                                                                                                                                                 | str         |        5.31 |          2 | 1         |
+| Asist_medi   | Tuvo atencion medica durante la enfermedad o lesion antes de la muerte (1=Si, 2=No, 9=Se ignora)                                                                                                                                                                                | str         |       17.73 |          2 | 2.0       |
+| Sitio_ocur   | Sitio de ocurrencia de la defuncion: tipo de institucion (1=Secretaria de Salud, 2=IMSS Bienestar, 3=IMSS, 4=ISSSTE, 5=PEMEX, 6=SEDENA, 7=SEMAR, 8=Otra unidad medica publica, 9=Unidad medica privada, 10=Via publica, 11=Hogar, 12=Otro, 13=IMSS Bienestar OPD, 99=Se ignora) | str         |        7.06 |         12 | 11.0      |
+| Cond_cert    | Persona que certifico (1=Medica/o tratante, 2=Medica/o legista, 3=Otra/o medica/o, 4=Autorizada SSA, 5=Autoridad civil, 8=Otro)                                                                                                                                                 | str         |        1.36 |          5 | 2.0       |
+| Nacionalid   | Nacionalidad (1=Mexicana, 2=Otra, 9=Se ignora)                                                                                                                                                                                                                                  | str         |        4.24 |          2 | 1         |
+| Derechohab   | Afiliacion a servicios de salud (1=Ninguna, 2=IMSS, 3=ISSSTE, 4=PEMEX, 5=SEDENA, 6=SEMAR, 8=Otra, 10=IMSS Bienestar, 11=ISSFAM, 99=Se ignora)                                                                                                                                   | str         |       26.8  |         10 | 1.0       |
+| Embarazo     | Momento de la defuncion respecto al embarazo, en mujeres de 10-54 anios (1=Embarazo, 2=Parto, 3=Puerperio, 4=43 dias-11 meses posparto, 5=No embarazada)                                                                                                                        | str         |        0    |          7 | 8         |
+| Rel_emba     | Las causas fueron complicaciones propias del embarazo, parto o puerperio (1=Si, 2=No)                                                                                                                                                                                           | str         |        0    |          3 | 8         |
+| Horas        | Hora de la defuncion                                                                                                                                                                                                                                                            | str         |        0    |         25 | 2         |
+| Minutos      | Minuto de la defuncion                                                                                                                                                                                                                                                          | str         |        0    |         61 | 0         |
+| Capitulo     | Capitulo CIE-10 de la causa de defuncion (variable derivada)                                                                                                                                                                                                                    | str         |        0    |          1 | 20        |
+| Grupo        | Grupo CIE-10 de la causa de defuncion (variable derivada)                                                                                                                                                                                                                       | str         |        0    |          2 | 26        |
+| Lista1       | Causa de defuncion, Lista 1 CIE-10 (variable derivada)                                                                                                                                                                                                                          | str         |        0    |          2 | 101       |
+| Gr_lismex    | Grupo segun Lista Mexicana (variable derivada)                                                                                                                                                                                                                                  | str         |        0    |          2 | E54       |
+| Vio_fami     | Condicion de violencia familiar en relacion con la persona agresora                                                                                                                                                                                                             | str         |       16.51 |          1 | 8.0       |
+| Area_ur      | Area urbana/rural de residencia habitual (1=Urbana, 2=Rural)                                                                                                                                                                                                                    | str         |        2.86 |          2 | 1.0       |
+| Edad_agru    | Edad agrupada en rangos quinquenales oficiales (variable derivada de Edad)                                                                                                                                                                                                      | str         |        0.94 |         21 | 12        |
+| Complicaro   | Las causas anotadas complicaron el embarazo, parto o puerperio (1=Si, 2=No)                                                                                                                                                                                                     | str         |        0    |          4 | 8         |
+| Dia_cert     | Dia de certificacion                                                                                                                                                                                                                                                            | str         |        0    |         32 | 15        |
+| Mes_cert     | Mes de certificacion                                                                                                                                                                                                                                                            | str         |        0    |         13 | 7         |
+| Anio_cert    | Anio de certificacion                                                                                                                                                                                                                                                           | str         |        0    |          7 | 2019      |
+| Maternas     | Causas maternas detalladas (CIE-10, variable derivada)                                                                                                                                                                                                                          | str         |      100    |          0 | N/A       |
+| Lengua       | Condicion de habla de lengua indigena (1=Si, 2=No, 9=Se ignora)                                                                                                                                                                                                                 | str         |       13.48 |          2 | 2         |
+| Cond_act     | Condicion de actividad economica (1=Trabajaba, 2=No, 9=Se ignora)                                                                                                                                                                                                               | str         |        4.42 |          2 | 1.0       |
+| Par_agre     | Parentesco de la persona presuntamente agresora con el fallecido                                                                                                                                                                                                                | str         |        0    |          1 | 88        |
+| Ent_ocules   | Entidad federativa donde ocurrio la lesion (distinto del domicilio donde ocurrio la defuncion)                                                                                                                                                                                  | str         |        0    |         33 | 01        |
+| Mun_ocules   | Municipio donde ocurrio la lesion                                                                                                                                                                                                                                               | str         |        0    |        354 | 001       |
+| Loc_ocules   | Localidad donde ocurrio la lesion                                                                                                                                                                                                                                               | str         |        0    |        265 | 0001      |
+| Razon_m      | Razon materna (variable derivada, sin pregunta directa en el certificado)                                                                                                                                                                                                       | str         |      100    |          0 | N/A       |
+| Dis_re_oax   | Distrito de registro especifico para el estado de Oaxaca                                                                                                                                                                                                                        | str         |        0    |         12 | 999       |
+| anio_dataset | Anio del archivo fuente (agregada por consolidate_years, no es original de INEGI)                                                                                                                                                                                               | str         |        0    |          6 | 2019      |
+| Tloc_regis   | Tamano de localidad de registro (asignado por numero de habitantes, no viene del certificado)                                                                                                                                                                                   | str         |       47.19 |         17 | 15.0      |
+| Loc_regis    | Localidad de registro                                                                                                                                                                                                                                                           | str         |       47.19 |         85 | 0001      |
+| Cod_adicio   | Codigo adicional CIE-10                                                                                                                                                                                                                                                         | str         |       47.19 |        212 | T71X      |
+| Ent_nac      | Lugar de nacimiento (entidad federativa o pais si nacio en el extranjero)                                                                                                                                                                                                       | str         |       48.82 |         66 | 001       |
+| Afromex      | Condicion de autoadscripcion como persona afromexicana (1=Si, 2=No, 9=Se ignora)                                                                                                                                                                                                | str         |       61.2  |          2 | 2         |
+| Conindig     | Condicion de autoadscripcion como persona indigena (1=Si, 2=No, 9=Se ignora)                                                                                                                                                                                                    | str         |       62.29 |          2 | 2         |
+| Cve_lengua   | Clave de la lengua indigena hablada                                                                                                                                                                                                                                             | str         |       47.19 |         33 | 8888      |
+| Nacesp_cve   | Nacionalidad extranjera especifica                                                                                                                                                                                                                                              | str         |       47.19 |         34 | 998       |
+| Sem_gest     | Semanas de gestacion (solo para fallecidos con menos de 28 dias de edad)                                                                                                                                                                                                        | str         |       47.19 |          1 | 88.0      |
+| Gramos       | Peso al nacer en gramos (solo para fallecidos con menos de 28 dias de edad)                                                                                                                                                                                                     | str         |       47.19 |          1 | 8888.0    |
+| Cirugia      | Se realizo cirugia en las ultimas 4 semanas previas al fallecimiento (1=Si, 2=No, 9=Se ignora)                                                                                                                                                                                  | str         |       47.19 |          4 | 8         |
+| Natviole     | La defuncion fue accidental o violenta (1=Si, 2=No, 9=Se ignora)                                                                                                                                                                                                                | str         |       47.19 |          2 | 8         |
+| Usonecrops   | Los hallazgos de la necropsia se usaron en la certificacion (1=Si, 2=No, 8/9=Se ignora)                                                                                                                                                                                         | str         |       61.32 |          2 | 1         |
+| Encefalica   | Presento muerte encefalica (1=Si, 2=No)                                                                                                                                                                                                                                         | str         |       47.19 |          4 | 8         |
+| Donador      | Fue donador(a) de organos (1=Si, 2=No)                                                                                                                                                                                                                                          | str         |       47.19 |          4 | 8         |
+| edad_valor   | Valor numerico de la edad, ya separado de su unidad (agregada por split_edad)                                                                                                                                                                                                   | str         |        0.94 |         93 | 36        |
+| edad_unidad  | Unidad de la edad: horas/dias/meses/anios/no_especificado (agregada por split_edad)                                                                                                                                                                                             | str         |        0    |          2 | anios     |

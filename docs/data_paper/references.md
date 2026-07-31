@@ -51,9 +51,10 @@ Pública. https://riisp.insp.mx/nada/index.php/catalog/21
   autores y el año se tomaron de la ficha de citacion oficial publicada
   en la propia pagina del catalogo (seccion "Condiciones" / "Requisito
   de cita").
-  `[PENDIENTE: la ficha de citacion oficial del INSP remite a
-  https://riisp.insp.mx/nada/index.php/catalog/11, no al catalog/21 que
-  se cita aqui -- verificar si son la misma serie, una version anterior,
-  o un catalogo distinto, antes de la version final del manuscrito.]`
+  `[RESUELTO: la ficha de citacion oficial remitia a
+  https://riisp.insp.mx/nada/index.php/catalog/11, pero esa URL marca
+  error al acceder (verificado por el autor). Se mantiene catalog/21
+  como URL de la referencia, que es la pagina real y accesible del
+  catalogo consultado.]`
 - Referencia a World Health Organization evaluada y descartada por
   decision del autor para este repo especifico.

@@ -239,20 +239,46 @@ Verificado contra las fuentes originales (no citar de memoria):
   de forma explicita) y pipeline reproducible con DOI propio.
 
 `[RESUELTO: autoria formal confirmada via ficha de citacion oficial del
-INSP -- ver references.md, nota de verificacion, para el pendiente
-restante sobre catalog/11 vs. catalog/21]`
+INSP. Ver references.md -- catalog/11 vs. catalog/21 tambien resuelto:
+catalog/11 da error, se mantiene catalog/21.]`
 
 ## 6. Valor de reutilizacion
 
-- Para quien es util: investigadores en salud publica, epidemiologia,
-  ciencias sociales que estudien suicidio en Mexico sin partir de datos
-  crudos.
-- Casos de uso ya demostrados por el propio equipo: sirvio como base para
-  el analisis espacial de Chihuahua (repo separado
-  `chihuahua-suicide-spatial-analysis`), evidencia de que el dataset
-  soporta analisis subnacionales sin retrabajo.
-- Extensiones posibles: analisis por edad/sexo, comparaciones
-  interestatales, series de tiempo con covariables ambientales.
+**Para quién es útil:** investigadores en salud pública, epidemiología y
+ciencias sociales que estudien suicidio en México sin necesidad de
+partir de los microdatos crudos de INEGI (formato `.dbf`, sin
+documentación enriquecida, sin reporte de calidad público). El dataset
+resuelve el trabajo de curaduría que de otro modo cada investigador
+repetiría por separado.
+
+**Caso de uso ya demostrado (evidencia concreta, no hipotética):** este
+mismo dataset sirvió como insumo directo para un análisis espacial
+subnacional (repo `chihuahua-suicide-spatial-analysis`, filtrado por
+entidad de residencia). Esto demuestra en la práctica -- no solo en
+teoría -- que el dataset soporta análisis subnacionales sin retrabajo de
+limpieza: el análisis de Chihuahua partió del consolidado ya curado y
+no tuvo que resolver de nuevo nulos ocultos, códigos de catálogo, ni el
+error de documentación `Lugar_ocur`/`Sitio_ocur`.
+
+**Extensiones posibles para terceros (no realizadas por este equipo,
+pero que el dataset soporta sin trabajo adicional de limpieza):**
+- Análisis por edad/sexo a nivel nacional o subnacional.
+- Comparaciones interestatales (el dataset ya viene desagregado por
+  entidad y municipio de residencia y de ocurrencia).
+- Series de tiempo con covariables externas (ej. temperatura, contexto
+  socioeconómico) mes a mes, dado que `Mes_ocurr` y `Anio_ocurr` están
+  preservados y limpios.
+- Estudios de contexto del hecho (lugar de ocurrencia, atención médica
+  previa) -- con la limitación ya documentada de 15-26% de "no
+  especificado" en esas variables específicas, transparentada en
+  `quality_report.md`, no oculta al usuario del dataset.
+
+**Por qué esto importa para el argumento de novedad del data paper:** un
+dataset "reutilizable" no es una afirmación abstracta si ya se demostró
+la reutilización una vez. Ese es el argumento más fuerte de esta
+sección, más que cualquier lista de usos hipotéticos.
+
+`[RESUELTO]`
 
 ## 7. Disponibilidad de datos y codigo
 
@@ -265,13 +291,13 @@ restante sobre catalog/11 vs. catalog/21]`
 
 ## Nota final del esqueleto
 
-Secciones 1, 3, 4 y 5 resueltas con datos verificados. Pendiente real:
+Secciones 1, 2, 3, 4, 5 y 6 resueltas con contenido real y verificado.
+Pendiente real:
 
-- Sección 2 y 6: transcripcion/redaccion corta desde `methodology.md`
-  (2) y valor de reutilizacion propio (6) -- no requieren investigacion
-  nueva.
 - Sección 7: confirmar que los datos de disponibilidad (GitHub, DOI,
   licencia, ORCID) siguen vigentes tal cual estan.
 - Revista objetivo: decision pendiente, afecta formato final.
-- `catalog/11` vs. `catalog/21` (ver nota en `references.md`): pendiente
-  de verificar antes de la version final del manuscrito.
+- Correccion del rango de anios en `methodology.md` (2006-2023 ->
+  2019-2024): ya aplicada por el autor.
+- `catalog/11` vs. `catalog/21`: resuelto -- catalog/11 da error, se
+  mantiene catalog/21 (ver references.md).
