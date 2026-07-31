@@ -9,6 +9,7 @@ venv/
 # Datos crudos pesados (opcional: si INEGI pesa mucho, no subir a git)
 data/
 !data/raw/.gitkeep
+docs/figuras/*
 
 # OS / editor
 .DS_Store
