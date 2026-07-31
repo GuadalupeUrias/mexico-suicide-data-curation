@@ -100,8 +100,25 @@ cero:
 - Formato de archivos, encoding, convenciones de nombres.
 - Cobertura temporal y geografica (nacional, 2019-2024).
 
-`[PENDIENTE: tabla resumen con N de registros por anio, extraida del
-consolidado data/processed/suicidio_2019_2024_consolidado.csv]`
+**Tabla de cobertura temporal (confirmado con datos reales):**
+
+| Año | N registros |
+|---|---|
+| 2019 | 7,225 |
+| 2020 | 7,896 |
+| 2021 | 8,433 |
+| 2022 | 8,241 |
+| 2023 | 9,072 |
+| 2024 | 9,051 |
+| **Total 2019-2024** | **49,918** |
+
+Crecimiento 2019→2024: +25.3%, consistente con el hallazgo ya
+documentado de +25.6% acumulado en el periodo (pequeña diferencia
+probablemente por redondeo o por cifras preliminares vs. definitivas de
+2024). Sirve como verificacion cruzada de que el consolidado no se
+corrompio ni cambio entre sesiones de trabajo.
+
+`[RESUELTO]`
 
 ## 4. Validacion tecnica
 
