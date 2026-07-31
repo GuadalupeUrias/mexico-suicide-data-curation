@@ -1,0 +1,187 @@
+# Esqueleto del data paper — Microdatos de suicidio en México (2019-2024)
+
+Estado: borrador de estructura. Completar secciones marcadas `[PENDIENTE]`.
+No reemplaza methodology.md/quality_report.md/data_dictionary.md — este
+documento traduce esos archivos a formato de articulo de datos. Ellos
+siguen siendo la fuente de verdad metodologica del pipeline.
+
+---
+
+## Titulo de trabajo
+
+"Curaduria y documentacion FAIR de microdatos de mortalidad por suicidio
+en Mexico (2019-2024): un conjunto de datos reproducible"
+
+`[PENDIENTE: version en ingles para revista internacional -- "Curation
+and FAIR Documentation of Suicide Mortality Microdata in Mexico
+(2019-2024): A Reproducible Dataset"]`
+
+## Palabras clave (5-6)
+
+Suicidio; mortalidad; microdatos; ciencia abierta; FAIR; Mexico
+
+## Tipo de contribucion
+
+Data paper / data descriptor (no articulo de resultados). El objetivo es
+documentar la calidad y reproducibilidad de un conjunto de datos para su
+reutilizacion, no probar una hipotesis. Revistas objetivo tipicas: *Data
+in Brief*, *Scientific Data*, o secciones de "nota de datos" en revistas
+regionales latinoamericanas.
+
+`[PENDIENTE: decidir revista objetivo -- afecta formato exacto de
+secciones, limite de palabras, y si se requiere manuscrito companero
+("research article" que use el dataset) segun politica de la revista]`
+
+---
+
+## Abstract (150-250 palabras, formato tipico de data descriptor)
+
+- **Contexto (1-2 lineas):** el suicidio es un problema de salud publica
+  en Mexico; INEGI publica microdatos oficiales pero sin curaduria
+  orientada a reutilizacion por terceros.
+- **Que se hizo (2-3 lineas):** se curo, valido y documento un
+  subconjunto de microdatos de defunciones por suicidio (2019-2024),
+  aplicando principios FAIR: filtrado por `Tipo_defun == 3`, preservacion
+  explicita de nulos (sin imputar), correccion documentada de errores de
+  descripcion de variables, y trazabilidad completa de decisiones.
+- **Que contiene el dataset (2-3 lineas):** N registros nacionales,
+  6 anios, variables de residencia/ocurrencia, lugar y sitio de
+  ocurrencia, catalogo de descripciones oficiales de variables
+  (`DEFUN_DESCRIPTIONS`).
+- **Validacion (1-2 lineas):** N/N verificaciones de calidad superadas
+  (duplicados, codigos geograficos huerfanos, consistencia entre anios).
+- **Disponibilidad (1 linea):** repositorio en GitHub, DOI en Zenodo
+  (`10.5281/zenodo.21686584`), licencia MIT para el codigo.
+
+---
+
+## 1. Contexto y motivacion
+
+- El suicidio como problema de salud publica en Mexico (cifras generales,
+  fuente INEGI/OMS).
+- INEGI capta suicidios dentro de las Estadisticas de Defunciones
+  Registradas (EDR) desde 2006, con 74 variables por registro.
+- Brecha: los microdatos oficiales estan disponibles, pero sin curaduria
+  documentada orientada a reutilizacion (sin diccionario de datos
+  enriquecido, sin reporte de calidad publico, sin trazabilidad de
+  decisiones de limpieza).
+- Objetivo del data paper: documentar formalmente el proceso de curaduria
+  para que el dataset resultante sea reutilizable por otros
+  investigadores sin repetir el trabajo de limpieza desde cero.
+
+`[RESUELTO: ver docs/data_paper/references.md -- Campuzano Rincon et al.
+(2022), Martinez Salgado (2010) e INEGI (2025) cubren esta seccion]`
+
+## 2. Metodos de construccion del dataset
+
+Tomado directamente de `methodology.md` -- resumir, no reescribir desde
+cero:
+
+- Fuente: microdatos EDR-INEGI, formato `.dbf`, 74 variables, 2019-2024.
+- Filtro de caso: `Tipo_defun == 3`; alias `PRESUNTO` (2019-2021) =
+  `Tipo_defun` (2022+).
+- Principio de no imputacion: nulos preservados como `NaN` explicito.
+- Correccion documentada de error de documentacion: `Lugar_ocur`
+  (tipo de sitio fisico) vs. `Sitio_ocur` (tipo de institucion de salud)
+  estaban invertidos en una version previa -- corregido y dejado como
+  evidencia de control de calidad del pipeline.
+- Fuente de descripciones oficiales de variables: diseno de registro
+  INEGI (`https://www.inegi.org.mx/rnm/index.php/catalog/1140`).
+- Pipeline reproducible: `01_profiling` -> `02_cleaning` ->
+  `03_validation` -> `04_multi_year_pilot` -> `05_documentation`.
+
+## 3. Descripcion del dataset
+
+- Estructura de carpetas del repositorio (`data/raw`, `data/interim`,
+  `data/processed`).
+- Resumen del diccionario de datos (`data_dictionary.md`): numero de
+  variables documentadas, categorias (identificacion, geografia,
+  demograficas, caracteristicas de la defuncion).
+- Formato de archivos, encoding, convenciones de nombres.
+- Cobertura temporal y geografica (nacional, 2019-2024).
+
+`[PENDIENTE: tabla resumen con N de registros por anio, extraida del
+consolidado data/processed/suicidio_2019_2024_consolidado.csv]`
+
+## 4. Validacion tecnica
+
+Tomado de `quality_report.md`:
+
+- Checklist de validacion (6/6 -- listar cada punto).
+- 0 duplicados, 0 codigos geograficos huerfanos, verificado en los 6 anios.
+- Consistencia de conteos anuales.
+
+## 5. Trabajos relacionados
+
+Verificado contra las fuentes originales (no citar de memoria):
+
+- **Palacio-Mejía, L. S., Hernández-Ávila, J. E., Morales-Carmona, E.,
+  Espín-Arellano, L. I., & Molina-Vélez, D. (2022).** Defunciones
+  registradas INEGI 1990-2024. Base de datos estandarizada [Dataset].
+  Unidad de Inteligencia en Salud Pública, Instituto Nacional de Salud
+  Pública. https://riisp.insp.mx/nada/index.php/catalog/21
+  Compilacion, estandarizacion e integracion via ETL de todas las causas
+  de muerte, con revision de consistencia entre anios (dimensiones de
+  exactitud, consistencia, cobertura, puntualidad, integridad y
+  trazabilidad). Diferencia con el presente dataset: cobertura de
+  *todas* las causas (el suicidio es una fila mas dentro del agregado),
+  sin documentacion granular de decisiones de limpieza ni reporte de
+  calidad publico independiente por causa especifica.
+
+- **Morin-Garcia, J. C., Lopez-Arevalo, I., & Gonzalez-Compean, J. L.
+  (2025).** Mortality Rates in Mexico (2000-2024): Death Counts - Crude
+  and Age-Standardized Mortality Rates (Version 1) [Dataset]. Zenodo.
+  https://doi.org/10.5281/zenodo.17739712
+  Dataset curado por investigadores del CINVESTAV, con conteos y tasas
+  (cruda y estandarizada por edad, Metodo Directo) por codigo CIE-10,
+  grupo de edad, sexo y nivel geografico (nacional/estatal/municipal),
+  organizado en archivos por capitulo de causa. Diferencia: mortalidad
+  general agregada en tasas por causa/region, no microdatos a nivel de
+  registro individual curados con trazabilidad de decisiones; el
+  suicidio aparaceria como una fila mas dentro del capitulo de causas
+  externas, sin el nivel de documentacion FAIR que aqui se ofrece.
+
+- **Posicionamiento del presente dataset:** primer conjunto de datos
+  *especifico de suicidio* (no mortalidad general) con documentacion FAIR
+  granular (diccionario enriquecido, reporte de calidad antes/despues,
+  decisiones de limpieza trazadas y errores de documentacion corregidos
+  de forma explicita) y pipeline reproducible con DOI propio.
+
+`[RESUELTO: autoria formal confirmada via ficha de citacion oficial del
+INSP -- ver references.md, nota de verificacion, para el pendiente
+restante sobre catalog/11 vs. catalog/21]`
+
+## 6. Valor de reutilizacion
+
+- Para quien es util: investigadores en salud publica, epidemiologia,
+  ciencias sociales que estudien suicidio en Mexico sin partir de datos
+  crudos.
+- Casos de uso ya demostrados por el propio equipo: sirvio como base para
+  el analisis espacial de Chihuahua (repo separado
+  `chihuahua-suicide-spatial-analysis`), evidencia de que el dataset
+  soporta analisis subnacionales sin retrabajo.
+- Extensiones posibles: analisis por edad/sexo, comparaciones
+  interestatales, series de tiempo con covariables ambientales.
+
+## 7. Disponibilidad de datos y codigo
+
+- Repositorio: GitHub (`urcamagu-coder`).
+- DOI: Zenodo `10.5281/zenodo.21686584`.
+- Licencia: MIT (codigo).
+- ORCID: `https://orcid.org/0009-0008-0081-4676`.
+
+---
+
+## Nota final del esqueleto
+
+Todo el contenido de las secciones 2, 3 y 4 es traduccion/resumen de
+archivos que ya existen (`methodology.md`, `data_dictionary.md`,
+`quality_report.md`) -- no requieren investigacion nueva, solo
+reescritura en formato de articulo. Las unicas secciones con trabajo
+genuinamente nuevo son 1 (contexto, necesita 2-3 referencias), 5 (ya
+resuelta arriba) y 6 (valor de reutilizacion, requiere redaccion propia
+pero es corta).
+
+Siguiente paso sugerido: llenar la tabla de N de registros por anio en la
+seccion 3 (dato que ya tienes en el repo), y decidir revista objetivo
+para ajustar formato exacto.
