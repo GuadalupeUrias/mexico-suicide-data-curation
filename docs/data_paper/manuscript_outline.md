@@ -44,12 +44,14 @@ secciones, limite de palabras, y si se requiere manuscrito companero
   aplicando principios FAIR: filtrado por `Tipo_defun == 3`, preservacion
   explicita de nulos (sin imputar), correccion documentada de errores de
   descripcion de variables, y trazabilidad completa de decisiones.
-- **Que contiene el dataset (2-3 lineas):** N registros nacionales,
-  6 anios, variables de residencia/ocurrencia, lugar y sitio de
-  ocurrencia, catalogo de descripciones oficiales de variables
+- **Que contiene el dataset (2-3 lineas):** 49,918 registros nacionales,
+  6 anios (2019-2024), variables de residencia/ocurrencia, lugar y sitio
+  de ocurrencia, catalogo de descripciones oficiales de variables
   (`DEFUN_DESCRIPTIONS`).
-- **Validacion (1-2 lineas):** N/N verificaciones de calidad superadas
-  (duplicados, codigos geograficos huerfanos, consistencia entre anios).
+- **Validacion (1-2 lineas):** 6/6 verificaciones de calidad superadas
+  (duplicados, codigos geograficos huerfanos, consistencia entre anios,
+  validacion cruzada contra cifras oficiales INEGI con diferencia entre
+  0.00% y 0.98% en anios con cifra definitiva).
 - **Disponibilidad (1 linea):** repositorio en GitHub, DOI en Zenodo
   (`10.5281/zenodo.21686584`), licencia MIT para el codigo.
 
@@ -122,11 +124,41 @@ corrompio ni cambio entre sesiones de trabajo.
 
 ## 4. Validacion tecnica
 
-Tomado de `quality_report.md`:
+**Checklist de validación (6/6, `quality_report.md`):**
 
-- Checklist de validacion (6/6 -- listar cada punto).
-- 0 duplicados, 0 codigos geograficos huerfanos, verificado en los 6 anios.
-- Consistencia de conteos anuales.
+1. Volumen del filtro `Tipo_defun == 3` validado contra cifras oficiales
+   INEGI. Diferencia entre 0.00% y 0.98% en años con cifra definitiva
+   publicada (2019: 0.11%, 2020: 0.00%, 2021: 0.98%); diferencias mayores
+   en 2022 y 2024 corresponden a comparaciones contra cifras que INEGI
+   mismo etiqueta como preliminares, no a error del pipeline.
+2. Duplicados exactos: 0 en cada uno de los 6 años (49,918 registros
+   totales).
+3. Nulos explícitos (NaN) revisados por columna: 1 columna con 100% nulo
+   (`Razon_m`, estructural — variable exclusiva de defunciones maternas,
+   no aplica a suicidios); el resto de las 73 columnas sin NaN explícito.
+4. Nulos ocultos (códigos categóricos "no especificado"/"se ignora")
+   revisados por columna: variables demográficas centrales (sexo, edad,
+   entidad) casi completas (sexo no especificado: 0.02%); variables de
+   *contexto del hecho* (si ocurrió en el trabajo, atención médica
+   previa, afiliación a salud, lugar del hecho) entre 15% y 26% no
+   especificado — documentado explícitamente, no imputado (principio
+   FAIR de preservar honestidad del dato).
+5. Rangos de fecha válidos: 0.24%-0.57% de fechas inválidas por año, sin
+   tendencia atípica.
+6. Códigos de entidad/municipio contra catálogo vigente INEGI: 0 códigos
+   huérfanos en los 6 años (2019-2024), validado individualmente por
+   año.
+
+**Consistencia entre años:** auditada con `audit_multiple_years()` antes
+de consolidar; alias `PRESUNTO` → `Tipo_defun` (2019-2021 usan el nombre
+antiguo de la variable) aplicado y validado.
+
+**Limitación documentada explícitamente (no oculta):** las variables de
+contexto del hecho (Ocurr_trab, Derechohab, Asist_medi, Lugar_ocur,
+Ocupacion) tienen 15-26% de "no especificado" — se recomienda su uso con
+precaución en análisis que dependan de ellas. No se imputan.
+
+`[RESUELTO]`
 
 ## 5. Trabajos relacionados
 
@@ -191,14 +223,13 @@ restante sobre catalog/11 vs. catalog/21]`
 
 ## Nota final del esqueleto
 
-Todo el contenido de las secciones 2, 3 y 4 es traduccion/resumen de
-archivos que ya existen (`methodology.md`, `data_dictionary.md`,
-`quality_report.md`) -- no requieren investigacion nueva, solo
-reescritura en formato de articulo. Las unicas secciones con trabajo
-genuinamente nuevo son 1 (contexto, necesita 2-3 referencias), 5 (ya
-resuelta arriba) y 6 (valor de reutilizacion, requiere redaccion propia
-pero es corta).
+Secciones 1, 3, 4 y 5 resueltas con datos verificados. Pendiente real:
 
-Siguiente paso sugerido: llenar la tabla de N de registros por anio en la
-seccion 3 (dato que ya tienes en el repo), y decidir revista objetivo
-para ajustar formato exacto.
+- Sección 2 y 6: transcripcion/redaccion corta desde `methodology.md`
+  (2) y valor de reutilizacion propio (6) -- no requieren investigacion
+  nueva.
+- Sección 7: confirmar que los datos de disponibilidad (GitHub, DOI,
+  licencia, ORCID) siguen vigentes tal cual estan.
+- Revista objetivo: decision pendiente, afecta formato final.
+- `catalog/11` vs. `catalog/21` (ver nota en `references.md`): pendiente
+  de verificar antes de la version final del manuscrito.
