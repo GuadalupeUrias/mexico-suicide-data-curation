@@ -76,21 +76,63 @@ secciones, limite de palabras, y si se requiere manuscrito companero
 
 ## 2. Metodos de construccion del dataset
 
-Tomado directamente de `methodology.md` -- resumir, no reescribir desde
-cero:
+**Fuente y alcance:** INEGI, Estadísticas de Defunciones Registradas
+(EDR), 2019-2024 (2024 = cifras preliminares). Registro individual
+(microdato), 74 variables por registro.
 
-- Fuente: microdatos EDR-INEGI, formato `.dbf`, 74 variables, 2019-2024.
-- Filtro de caso: `Tipo_defun == 3`; alias `PRESUNTO` (2019-2021) =
-  `Tipo_defun` (2022+).
-- Principio de no imputacion: nulos preservados como `NaN` explicito.
-- Correccion documentada de error de documentacion: `Lugar_ocur`
-  (tipo de sitio fisico) vs. `Sitio_ocur` (tipo de institucion de salud)
-  estaban invertidos en una version previa -- corregido y dejado como
-  evidencia de control de calidad del pipeline.
-- Fuente de descripciones oficiales de variables: diseno de registro
-  INEGI (`https://www.inegi.org.mx/rnm/index.php/catalog/1140`).
-- Pipeline reproducible: `01_profiling` -> `02_cleaning` ->
-  `03_validation` -> `04_multi_year_pilot` -> `05_documentation`.
+**Filtro de inclusión:**
+- `Tipo_defun == 3` (INEGI codifica `3` = "Suicidio [Lesión
+  autoinfligida]") — filtro central del universo de estudio.
+- Verificación cruzada secundaria contra `Causa_def` (códigos CIE-10
+  X60-X84, lesión autoinfligida intencional).
+- Verificación de magnitud contra cifra oficial publicada (ver sección 4
+  del data paper, validación técnica).
+- Alias `PRESUNTO` (2019-2021) = `Tipo_defun` (2022+): cambio de nombre
+  de la misma variable entre versiones del certificado de defunción, no
+  una variable nueva. Confirmado por evidencia cruzada (código 3 en
+  `PRESUNTO` 2019 dio 7,225 casos vs. 7,233 oficiales, 0.11% de
+  diferencia — mismo margen que años con `Tipo_defun`).
+
+**Reglas de limpieza principales:**
+- Recodificación explícita de códigos categóricos "no
+  especificado"/"se ignora" (8, 9, 88, 99, 997, 998, 999...) a `NaN` —
+  pandas no los detecta como nulos por defecto. Sin esto, análisis
+  posteriores tratarían "se ignora" como una categoría de datos válida.
+- Separación de `Edad` (mezcla unidad y valor en un solo código) en
+  `edad_valor` + `edad_unidad`, preservando el campo original para
+  trazabilidad.
+- Traducción de códigos sin etiqueta legible (`Causa_def`, `Ent_ocurr`,
+  `Sexo`) contra catálogos oficiales INEGI, agregando columnas `*_desc`
+  sin eliminar el código original.
+
+**Normalización de catálogos:**
+- Códigos geográficos validados contra el Catálogo Único de Claves de
+  Áreas Geoestadísticas (`CATEMLDE23.dbf`).
+- Nombres de columna normalizados desde MAYÚSCULAS (formato de origen
+  `.dbf`) usando como referencia el diseño de registro oficial de INEGI.
+- **Corrección de documentación documentada como hallazgo de control de
+  calidad:** `Lugar_ocur` (tipo de sitio físico) y `Sitio_ocur` (tipo de
+  institución de salud) estaban descritas de forma invertida en una
+  versión previa; corregido contra el documento oficial de INEGI, no por
+  inferencia de nomenclatura.
+
+**Manejo de nulos:** principio de no imputación — todo valor faltante o
+"no especificado" se preserva como `NaN` explícito (principio FAIR:
+Reusable). Variables ausentes del certificado en 2019-2021 (`Afromex`,
+`Cirugia`, `Encefalica`, entre otras) se dejan como `NaN` para esos años
+al consolidar, sin excluir años ni imputar valores por defecto.
+
+**Hallazgo metodológico relevante para el contexto del dataset:** se
+documentó como hipótesis pendiente un posible efecto de subregistro por
+la pandemia (2020-2021). La evidencia real no confirma esa hipótesis —
+incremento sostenido en esos años, sin caída (2019→2020: +9.29%,
+2020→2021: +6.80%). Tendencia general 2019-2023: +25.6%, con aparente
+estabilización 2023→2024 (-0.23%, 2024 preliminar).
+
+**Pipeline reproducible:** `01_profiling` → `02_cleaning` →
+`03_validation` → `04_multi_year_pilot` → `05_documentation`.
+
+`[RESUELTO]`
 
 ## 3. Descripcion del dataset
 
