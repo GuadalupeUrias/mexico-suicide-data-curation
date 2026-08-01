@@ -53,7 +53,7 @@ no son errores del pipeline. Fuentes: comunicados de prensa anuales de INEGI
 | Cifra oficial INEGI (Nota Técnica EDR 2023) | ~9,085 (10.8% de 84,118 causas externas) |
 | Diferencia vs. cifra oficial | 13 casos (0.14%) — dentro de margen aceptable |
 | Duplicados exactos | 0 (0.0%) |
-| Columnas con 100% nulo (NaN explícito) | 1 (`Razon_m`, estructural — variable materna) |
+| Columnas con 100% nulo (NaN explícito) | 2 (`Razon_m`, `Maternas` — ambas estructurales, exclusivas de defunciones maternas) |
 | Columnas con >15% de "no especificado" oculto | 4 |
 
 **Validación de filtro:** el conteo propio (9,072) se aproxima a la cifra publicada por
@@ -65,12 +65,14 @@ de las cifras. Se considera el filtro `Tipo_defun == 3` **validado**.
 | Columna | % nulo | Explicación |
 |---|---|---|
 | Razon_m | 100.0% | Estructural: variable exclusiva de defunciones maternas, no aplica a suicidios |
-| Resto (73 columnas) | 0.0% | Sin NaN explícito |
+| Maternas | 100.0% | Estructural: causas maternas detalladas (CIE-10), variable derivada exclusiva de defunciones maternas, no aplica a suicidios |
+| Resto (72 columnas) | 0.0% | Sin NaN explícito |
 
 ## Nulos ocultos (códigos categóricos "no especificado"/"se ignora")
 
 Detectados con `special_code_report()` — no son NaN para pandas, pero funcionalmente
-representan información faltante. Variables con mayor incidencia:
+representan información faltante. Variables con mayor incidencia (año piloto 2023,
+n=9,072):
 
 | Variable | Código | Significado del código | Conteo | % del total |
 |---|---|---|---|---|
@@ -96,22 +98,38 @@ representan información faltante. Variables con mayor incidencia:
 | Cond_cert | 8/9 | No especificado | 188 | 2.07% (combinado) |
 | **Sexo** | 9 | **No especificado** | **2** | **0.02%** |
 
+Nota: las 4 columnas que superan el umbral de 15% en este corte (2023) son
+Ocurr_trab, Derechohab, Asist_medi y Ocupacion. `Lugar_ocur` (14.91%) queda
+justo debajo del umbral y no debe incluirse en esa categoría.
+
+**Referencia cruzada con el consolidado 2019-2024** (`data_dictionary.md`,
+generado sobre las 49,918 filas): en el consolidado, las variables que
+superan 15% de nulos son Ocurr_trab (26.71%), Derechohab (26.8%) y
+Asist_medi (17.73%). `Lugar_ocur` baja a 10.66% y `Ocupacion` a 11.81% en el
+consolidado — ambas por debajo del umbral. Al citar este umbral en el data
+paper o en publicaciones derivadas, usar las cifras del consolidado
+(`data_dictionary.md`), no las del piloto 2023, ya que el dataset descrito
+es el multi-año completo.
+
 **Lectura:** las variables demográficas centrales (Sexo, Edad, entidad) están casi
 completas y son confiables para análisis. Las variables de **contexto del hecho**
-(si ocurrió en el trabajo, atención médica previa, afiliación a salud, lugar del
-hecho) tienen entre 15-26% de información no especificada — consistente con la
-naturaleza del proceso de captación (Ministerio Público/Servicio Médico Forense
-no siempre reconstruye el contexto completo en muertes violentas).
+con mayor incidencia de no especificado (ocurrencia en el trabajo, atención médica
+previa, afiliación a salud) tienen entre 17.73% y 26.8% de información no
+especificada en el consolidado — consistente con la naturaleza del proceso de
+captación (Ministerio Público/Servicio Médico Forense no siempre reconstruye el
+contexto completo en muertes violentas).
 
 ## Duplicados
-- 0 registros duplicados exactos sobre 9,072 filas. No requiere deduplicación.
+- 0 registros duplicados exactos sobre 9,072 filas (piloto 2023). No requiere deduplicación.
 
 ## Limitaciones conocidas
 - Subregistro y datos preliminares vs. definitivos (metodología INEGI, ver `methodology.md`).
-- Variables de contexto del hecho (Ocurr_trab, Derechohab, Asist_medi, Lugar_ocur,
-  Ocupacion) tienen 15-26% de "no especificado" — se recomienda uso con precaución
-  en análisis que dependan de ellas; no se imputan, se preservan como NaN explícito
-  para mantener honestidad del dato (principio FAIR).
+- Variables de contexto del hecho con mayor incidencia de "no especificado" en el
+  consolidado 2019-2024 (Ocurr_trab: 26.71%, Derechohab: 26.8%, Asist_medi: 17.73%)
+  — se recomienda uso con precaución en análisis que dependan de ellas; no se
+  imputan, se preservan como NaN explícito para mantener honestidad del dato
+  (principio FAIR). Lugar_ocur (10.66%) y Ocupacion (11.81%) tienen nulos ocultos
+  pero quedan por debajo del umbral de 15% en el consolidado.
 - La variable Edad mezcla unidades (horas/días/meses/años) en un solo campo —
   requiere transformación antes de análisis de edad (ver `02_cleaning.ipynb`).
 - Los campos del `.dbf` de origen están en MAYÚSCULAS; se normalizan al formato
@@ -130,8 +148,15 @@ documentadas en `methodology.md`:
   47.19%) no tenían esa variable. Esto confirma que la regla de "no imputar,
   dejar NaN cuando la variable no existía ese año" (sección 5 de
   `methodology.md`) se aplicó correctamente al consolidar.
-- `Razon_m` en 100% de nulos, consistente con lo ya documentado para 2023 (es
-  estructural: variable exclusiva de defunciones maternas).
+- `Razon_m` y `Maternas` en 100% de nulos, consistente con lo ya documentado
+  para 2023 (son estructurales: variables exclusivas de defunciones maternas).
+- El umbral de "no especificado" >15% cambia según el corte de datos: en el
+  piloto 2023 son 4 variables (Ocurr_trab, Derechohab, Asist_medi, Ocupacion);
+  en el consolidado 2019-2024 son 3 (Ocurr_trab, Derechohab, Asist_medi) —
+  `Ocupacion` baja de 16.96% a 11.81% al consolidar los 6 años. Esta diferencia
+  es esperable (el piloto es una sola cohorte anual) y no indica un error, pero
+  cualquier cifra citada en publicaciones debe especificar a qué corte
+  corresponde.
 
 ## Validaciones aplicadas
 - [x] Volumen del filtro validado contra cifra oficial INEGI — 2023: diferencia
@@ -153,4 +178,3 @@ documentadas en `methodology.md`:
   códigos huérfanos y 0 registros afectados en todos los años (2019-2024)
 
 ## Estado del checklist: completo (6/6)
-

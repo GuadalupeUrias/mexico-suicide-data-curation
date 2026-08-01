@@ -180,11 +180,13 @@ corrompio ni cambio entre sesiones de trabajo.
    no aplica a suicidios); el resto de las 73 columnas sin NaN explícito.
 4. Nulos ocultos (códigos categóricos "no especificado"/"se ignora")
    revisados por columna: variables demográficas centrales (sexo, edad,
-   entidad) casi completas (sexo no especificado: 0.02%); variables de
-   *contexto del hecho* (si ocurrió en el trabajo, atención médica
-   previa, afiliación a salud, lugar del hecho) entre 15% y 26% no
-   especificado — documentado explícitamente, no imputado (principio
-   FAIR de preservar honestidad del dato).
+   entidad) casi completas (sexo no especificado: 0.07% en el
+   consolidado); de las variables de *contexto del hecho*, las que
+   genuinamente superan el 15% en el consolidado 2019-2024 son
+   Ocurr_trab (26.71%), Asist_medi (17.73%) y Derechohab (26.8%) --
+   documentado explícitamente, no imputado (principio FAIR de preservar
+   honestidad del dato). Lugar_ocur (10.66%) y Ocupacion (11.81%) tienen
+   nulos ocultos pero quedan por debajo de ese umbral en el consolidado.
 5. Rangos de fecha válidos: 0.24%-0.57% de fechas inválidas por año, sin
    tendencia atípica.
 6. Códigos de entidad/municipio contra catálogo vigente INEGI: 0 códigos
@@ -196,9 +198,10 @@ de consolidar; alias `PRESUNTO` → `Tipo_defun` (2019-2021 usan el nombre
 antiguo de la variable) aplicado y validado.
 
 **Limitación documentada explícitamente (no oculta):** las variables de
-contexto del hecho (Ocurr_trab, Derechohab, Asist_medi, Lugar_ocur,
-Ocupacion) tienen 15-26% de "no especificado" — se recomienda su uso con
-precaución en análisis que dependan de ellas. No se imputan.
+contexto del hecho con mayor incidencia de "no especificado" en el
+consolidado (Ocurr_trab 26.71%, Derechohab 26.8%, Asist_medi 17.73%) —
+se recomienda su uso con precaución en análisis que dependan de ellas.
+No se imputan.
 
 `[RESUELTO]`
 
